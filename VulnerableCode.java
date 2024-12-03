@@ -1,34 +1,37 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Scanner;
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%@ page import="com.example.CSRFProtection" %>
+<% HttpSession session = request.getSession(); String csrfToken = CSRFProtection.generateCSRFToken(session); %>
 
-public class SecureCode {
 
-public static void main(String[] args) {
-    String dbUrl = "jdbc:mysql://localhost:3306/mydb";
-    String username = "admin";
-    String password = "password123";
+Enter a Command Command: 
 
-    try (Scanner scanner = new Scanner(System.in)) {
-        System.out.println("Enter username:");
-        String userInput = scanner.nextLine();
 
-        String query = "SELECT * FROM users WHERE username = ?";
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.UUID;
 
-        Connection connection = DriverManager.getConnection(dbUrl, username, password);
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, userInput);
+public class CSRFProtection {
+public static String generateCSRFToken(HttpSession session) {
+String token = UUID.randomUUID().toString();
+session.setAttribute("csrf_token", token);
+return token;
+}
 
-        ResultSet resultSet = statement.executeQuery();
+public static boolean validateCSRFToken(HttpServletRequest request) {
+    String token = request.getParameter("csrf_token");
+    String sessionToken = (String) request.getSession().getAttribute("csrf_token");
+    return token != null && token.equals(sessionToken);
+}
 
-        if (resultSet.next()) {
-            System.out.println("Welcome, " + resultSet.getString("username") + "!");
-        } else {
-            System.out.println("User not found.");
-        }
-
+public void doPost(HttpServletRequest request) {
+    if (!validateCSRFToken(request)) {
+        throw new SecurityException("Invalid CSRF token");
+    }
+    String command = request.getParameter("command");
+    try {
+        // Command injection vulnerability
+        Runtime.getRuntime().exec(command);
     } catch (Exception e) {
         e.printStackTrace();
     }
