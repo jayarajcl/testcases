@@ -1,16 +1,13 @@
-name: "CodeQL"
+name: "CodeQL Analysis"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-  schedule:
-    - cron: '0 0 * * 0'  # Optional: schedule for weekly scans
+    branches: ["main"]
 
 jobs:
   analyze:
-    name: Analyze
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +18,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'adoptopenjdk'
-        java-version: '11'  # or any other version your project requires
+        java-version: '11'  # Modify this to match your JDK version if necessary
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
@@ -29,14 +26,22 @@ jobs:
         languages: java
 
     - name: Run Maven Build (if pom.xml exists)
-      if: exists('pom.xml')
       run: |
-        mvn clean install -DskipTests
+        if [ -f "pom.xml" ]; then
+          echo "Maven project detected. Running Maven build..."
+          mvn clean install -DskipTests
+        else
+          echo "Maven project not detected."
+        fi
 
     - name: Run Gradle Build (if build.gradle or gradlew exists)
-      if: exists('build.gradle') || exists('gradlew')
       run: |
-        ./gradlew build -x test
+        if [ -f "build.gradle" ] || [ -f "gradlew" ]; then
+          echo "Gradle project detected. Running Gradle build..."
+          ./gradlew build -x test
+        else
+          echo "Gradle project not detected."
+        fi
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
