@@ -1,19 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 
-Enter User ID User ID: 
+Search Search Query: 
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 
-public class ViewProfileServlet {
-public void doGet(HttpServletRequest request) {
-String userId = request.getParameter("userId");
+public class SearchServlet {
+public void doGet(HttpServletRequest request, javax.servlet.http.HttpServletResponse response) {
+if (!CSRFProtection.validateCSRFToken(request)) {
+throw new SecurityException("Invalid CSRF token");
+}
+String query = request.getParameter("query");
 try {
-// IDOR vulnerability: No authorization check
-String profile = "SELECT * FROM users WHERE id=" + userId;
-System.out.println(profile);
+PrintWriter out = response.getWriter();
+// Reflect user input directly without encoding
+out.println("
+
+You searched for: " + query + "
+
+");
 } catch (Exception e) {
 e.printStackTrace();
 }
