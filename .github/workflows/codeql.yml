@@ -17,8 +17,8 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        distribution: 'adoptopenjdk'
-        java-version: '11'  # Modify this to match your JDK version if necessary
+        distribution: 'temurin'  # Change from 'adoptopenjdk' to 'temurin'
+        java-version: '11'  # You can modify this to match your required Java version
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
