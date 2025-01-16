@@ -2,11 +2,8 @@ public class XMLHandler : IHttpHandler
 {
     public void ProcessRequest(HttpContext ctx)
     {
-        XmlReaderSettings settings = new XmlReaderSettings()
-        {
-            DtdProcessing = DtdProcessing.Prohibit
-        };
-        XmlReader reader = XmlReader.Create(ctx.Request.QueryString["document"], settings);
+        // BAD: XmlTextReader is insecure by default, and the payload is user-provided data
+        XmlTextReader reader = new XmlTextReader(ctx.Request.QueryString["document"]);
     ...
   }
 }
