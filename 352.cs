@@ -1,11 +1,9 @@
-using System.Web.Mvc;
+using System;using System.Web;public class StackTraceHandler : IHttpHandler{    public void ProcessRequest(HttpContext ctx)    {   
+     try        {     
+       doSomeWork();    
+    }        catch (Exception ex)       
 
-public class HomeController : Controller
-{
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Login()
-    {
-        return View();
-    }
-}
+ {    
+                   ctx.Response.Write(ex.ToString());        
+    return;        }   
+ }}
